@@ -46,4 +46,17 @@ class Patient extends Authenticatable implements JWTSubject
         return [];
     }
 
+    public function patientHistory(){
+
+        return $this->hasOne(Patient_history::class, 'patient_id');
+
+    }
+
+
+    public function diagnoSIS(){
+
+        return $this->hasOne(Diagnosis::class, 'patient_id');
+
+    }
+
 }

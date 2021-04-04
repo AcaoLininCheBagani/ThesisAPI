@@ -50,12 +50,12 @@ return [
         'admin' => [
             'driver' => 'jwt',
             'provider' => 'admins',
-            //'hash' => false,
+            'hash' => false,
         ],
         'patient' => [
             'driver' => 'jwt',
             'provider' => 'patients',
-            //'hash' => false,
+            'hash' => false,
         ],
 
     ],

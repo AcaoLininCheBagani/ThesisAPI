@@ -5,64 +5,69 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Patient;
+use App\Models\Diagnosis;
+use App\Models\Treatment;
 use Validator;
 use Illuminate\Support\Facades\Hash;
 
+
+//test to be remove
+use Illuminate\Support\Facades\DB;
+
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
+
+    //limit and pag gamit sa middleware
     public function __construct() {
-        $this->middleware('auth:patient', ['except' => ['login', 'register']]);
+        $this->middleware('auth:patient', ['except' => ['login', 'register',]]);
     }
 
     //LOGIN USER
     public function login(Request $request){
 
         $credentials = $request->only('email','password');
-        if($token = auth('patient')->attempt($credentials))
+        if(!$token = auth('patient')->attempt($credentials))
         {
-            return $this->createNewToken($token);
-        }else{
             return response()->json(['error' => 'Unauthorized'], 401);
+
         }
 
+       return $this->createNewToken($token);
     }
 
-    //REGISTER DENTIST
-    public function register(Request $request) {
 
-        $record = new Patient;
-        $record->patient_fname = $request->patient_fname;
-        $record->patient_mname = $request->patient_mname;
-        $record->patient_lname = $request->patient_lname;
-        $record->patient_address= $request->patient_address;
-        $record->patient_gender = $request->patient_gender;
-        $record->email = $request->email;
-        $record->password = Hash::make($request->password);
-        $record->patient_phone_num = $request->patient_phone_num;
-        $record->dob = $request->dob;
-        $record->user_id = $request->user_id;
+    //TEST get patient medical history table info one to one relation
+    public function findCon(){
+        $loginUsersID = Auth::id();
+        $patient = Patient::find($loginUsersID)->patientHistory;
 
-        $record->save();
 
+        if($patient == ''){
+            return 'hey you no record!';
+        }else{
+        return $patient;//->patientHistory->pmed_condition;
+        }
     }
+    public function findDiag(){
+
+       // $diagnosisFind = Auth::id();
+        $users = DB::table('patient_tables')->get();
+        return $users;
+    }
+
 
 
     //LOGOUT USER
     public function logout() {
-        auth('patient')->logout();
 
+        auth('patient')->logout();
         return response()->json(['message' => 'User successfully signed out']);
     }
 
     //REFRESH TOKEN
 
     public function refresh() {
-        return $this->createNewToken(auth()->refresh());
+        return $this->createNewToken(auth('patient')->refresh());
     }
 
     //GET USER INFORMATION
@@ -72,12 +77,16 @@ class AuthController extends Controller
 
     //GENERATE TOKEN
     protected function createNewToken($token){
+
         return response()->json([
+
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
             'user' => auth('patient')->user()
         ]);
     }
+
+
 
 }

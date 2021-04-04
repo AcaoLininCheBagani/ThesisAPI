@@ -46,6 +46,10 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
     public function getJWTCustomClaims() {
         return [];
     }
+    public function diagnosisDoc(){
 
+        return $this->hasOne(Diagnosis::class, 'dentist_id');
+
+    }
 
 }
